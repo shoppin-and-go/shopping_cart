@@ -1,1 +1,1 @@
-{"port": 80, "cartCode": "0000", "url": "http://ec2-3-38-128-6.ap-northeast-2.compute.amazonaws.com:80", "patch_dir": "/carts/0000/inventory"}
+{"port": 80, "cartCode": "cart-1", "url": "http://ec2-3-38-128-6.ap-northeast-2.compute.amazonaws.com:80", "patch_dir": "/carts/cart-1/inventory"}

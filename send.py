@@ -4,6 +4,21 @@ import requests
 from config import send_config
 from data.data_class import InfoPacket
 
+def Mapping_code(name):
+    codebook={
+        "ShinRamyun": "ramen-1",
+        "Chapagetti": "ramen-2",
+        "Buldak": "ramen-3",
+        "CornChips": "chip-1",
+        "Saewookkang": "chip-2",
+        "PotatoChips": "chip-3",
+        "Powerade": "drink-1",
+        "Gatorade": "drink-2",
+        "CocaCola": "drink-3",
+        "Pepsi": "drink-4"
+    }
+    return codebook[name] if name in codebook else None
+
 
 def send_message(data: InfoPacket):
     # 설정 파일 불러오기
@@ -15,9 +30,15 @@ def send_message(data: InfoPacket):
     count = data.count
     object_name = data.object
 
+    code = Mapping_code(object_name)
+
+    if code is None:
+        print("코드 매핑 실패")
+        return
+
     # 변경된 수량을 서버로 전송할 데이터
     send_data = {
-        "productCode": object_name,
+        "productCode": code,
         "quantityChange": count
     }
 

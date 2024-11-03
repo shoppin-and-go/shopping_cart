@@ -109,7 +109,7 @@ class send_config:
     port: int = 80
     headers = {'Content-Type': 'application/json'}
     patch_dir = None
-    cartCode: str = "0000"
+    cartCode: str = "cart-1"
 
     def __post_init__(self):
         self.url = self.url + str(self.port)
