@@ -8,3 +8,10 @@ class ImageInfoPacket:
     message: str
     name: str
     image_list: List[np.ndarray]
+
+
+@dataclass
+class InfoPacket:
+    message: str
+    count: int
+    object: str

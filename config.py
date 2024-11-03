@@ -85,13 +85,38 @@ class swin_config:
 @dataclass
 class checkP_config:
     save_dir: str = "./output/send"
-    save_bakc_dir: str = "./output/back"
+    save_back_dir: str = "./output/back"
     save_diff_dir: str = "./output/diff"
     min_frame: int = 10
     check_num: int = 3
     back: int = 3
     threshold = 30
     start_frame = 5
+
+    def save_to_json(self, path):
+        with open(path, 'w') as f:
+            json.dump(self.__dict__, f)
+
+    def load_from_json(self, path):
+        with open(path, 'r') as f:
+            data = json.load(f)
+            self.__dict__.update(data)
+
+
+@dataclass
+class send_config:
+    url = "http://127.0.0.1:"
+    port = 8080
+    headers = {'Content-Type': 'application/json'}
+    patch_dir = None
+    get_dir = None
+    cartCode = 0000
+    device_id = 1111
+
+    def __post_init__(self):
+        self.url = self.url + str(self.port)
+        self.patch_dir = "/carts/" + str(self.cartCode) + "/inventory"
+        self.get_dir = "/devices/" + str(self.device_id) + "/carts/" + str(self.cartCode) + "/inventory"
 
     def save_to_json(self, path):
         with open(path, 'w') as f:
@@ -116,8 +141,16 @@ def update_swin_config(path="./data/config/swin_config.json"):
     config.load_from_json(path)
     return config
 
+
 def update_checkP_config(path="./data/config/checkP_config.json"):
     config = checkP_config()
+    config.save_to_json(path)
+    config.load_from_json(path)
+    return config
+
+
+def update_send_config(path="./data/config/send_config.json"):
+    config = send_config()
     config.save_to_json(path)
     config.load_from_json(path)
     return config
@@ -132,3 +165,6 @@ if __name__ == '__main__':
 
     c3 = update_checkP_config()
     print(c3)
+
+    c4 = update_send_config()
+    print(c4)

@@ -6,7 +6,7 @@ import os
 import torch.nn.functional as F
 from config import swin_config
 import numpy as np
-from data.data_class import ImageInfoPacket
+from data.data_class import ImageInfoPacket, InfoPacket
 from send import send_message
 
 
@@ -114,7 +114,12 @@ def classification_process(input_queue, output_queue):
         max_class1, max_prob1 = calculate_max_prob(p1)
         max_class2, max_prob2 = calculate_max_prob(p2)
 
-        send_message(("Input", max_class1, max_prob1))
-        send_message(("Output", max_class2, max_prob2))
+        if max_prob1 > 0.8:
+            IP1 = InfoPacket(message="classification", count=1, object=max_class1)
+            send_message(IP1)
+
+        if max_prob2 > 0.8:
+            IP2 = InfoPacket(message="classification", count=-1, object=max_class2)
+            send_message(IP2)
 
     print("classification.py 종료")

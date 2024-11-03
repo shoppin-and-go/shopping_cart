@@ -77,7 +77,7 @@ def check_process(input_queue, output_queue):
     save_path = config.save_dir
 
     erase_file(save_path)
-    erase_file(config.save_bakc_dir)
+    erase_file(config.save_back_dir)
     erase_file(config.save_diff_dir)
 
     while True:
@@ -104,7 +104,7 @@ def check_process(input_queue, output_queue):
 
 
             back = get_back(images[:config.back])
-            save_one_image(back, config.save_bakc_dir, f"back_{process}")
+            save_one_image(back, config.save_back_dir, f"back_{process}")
             print("Back image saved.")
 
             p1 = []
@@ -117,7 +117,7 @@ def check_process(input_queue, output_queue):
 
             p2 = []
             back2 = images[-1]
-            save_one_image(back2, config.save_bakc_dir, f"back2_{process}")
+            save_one_image(back2, config.save_back_dir, f"back2_{process}")
             for i in range(L-config.check_num-5, L-5):
                 frame = images[i]
                 result = remove_back_white(frame, back2, config.threshold)
