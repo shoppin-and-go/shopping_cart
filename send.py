@@ -35,9 +35,6 @@ def send_message(data: InfoPacket):
                     new_quantity = original_quantity + count # new_quantity = 기존 수량 + 변경할 수량 으로 변경
                     print(f"아이템 {object_name}의 수량이 {original_quantity}에서 {new_quantity}로 변경됩니다.")
                     break
-                else:
-                    print("데이터 처리 실패")
-                    return
         except:
             print("데이터 처리 실패")
             return
