@@ -105,7 +105,7 @@ class checkP_config:
 
 @dataclass
 class send_config:
-    url = "http://127.0.0.1:"
+    url = "http://ec2-3-38-128-6.ap-northeast-2.compute.amazonaws.com:"
     port = 8080
     headers = {'Content-Type': 'application/json'}
     patch_dir = None
