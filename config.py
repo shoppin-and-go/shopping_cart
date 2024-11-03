@@ -106,17 +106,14 @@ class checkP_config:
 @dataclass
 class send_config:
     url = "http://ec2-3-38-128-6.ap-northeast-2.compute.amazonaws.com:"
-    port = 8080
+    port: int = 80
     headers = {'Content-Type': 'application/json'}
     patch_dir = None
-    get_dir = None
-    cartCode = 0000
-    device_id = 1111
+    cartCode: str = "0000"
 
     def __post_init__(self):
         self.url = self.url + str(self.port)
         self.patch_dir = "/carts/" + str(self.cartCode) + "/inventory"
-        self.get_dir = "/devices/" + str(self.device_id) + "/carts/" + str(self.cartCode) + "/inventory"
 
     def save_to_json(self, path):
         with open(path, 'w') as f:
