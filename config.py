@@ -113,7 +113,7 @@ class send_config:
 
     def __post_init__(self):
         self.url = self.url + str(self.port)
-        self.patch_dir = "/carts/" + str(self.cartCode) + "/inventory"
+        self.patch_dir = "/carts/" + str(self.cartCode) + "/inventories"
 
     def save_to_json(self, path):
         with open(path, 'w') as f:
