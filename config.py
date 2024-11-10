@@ -11,7 +11,7 @@ class detect_config:
     backThresh: int = 15  # 배경과 전경을 구분할 임계값 0 ~ 16(평균) ~ 255
     frames_skip: int = 5  # 몇 프레임마다 처리할지
     detect_ROI: (float, float, float, float) = (0.15, 0.45, 0.85, 0.6)  # 움직임 감지할 ROI 크기 설정
-    capture_ROI: (float, float, float, float) = (0.1, 0.3, 0.9, 0.8)  # 화면 캡쳐할 ROI 크기 설정
+    capture_ROI: (float, float, float, float) = (0.1, 0.3, 0.9, 0.7)  # 화면 캡쳐할 ROI 크기 설정
     detectPercents: float = 0.01  # ROI 중 몇 퍼센트 이상의 객체를 검출할지
     sendIMG_Nums: int = 3  # 전송할 이미지의 개수
     min_Process_Frames: int = 0  # 프로세스로 취급할 최소 프레임 수

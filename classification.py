@@ -28,7 +28,6 @@ class YOLO_Classifier:
         if not isinstance(image, np.ndarray):
             raise ValueError("입력은 NumPy 배열이어야 합니다.")
 
-
         with torch.no_grad():
             results = self.model.predict(image, verbose=False)
 
@@ -42,7 +41,7 @@ class YOLO_Classifier:
             class_probs = {}
             for result in results:
                 for cls_id, conf in zip(result.boxes.cls, result.boxes.conf):
-                    cls_name = self.config.idx_to_class[int(cls_id)]
+                    cls_name = result.names[int(cls_id)]
                     if cls_name in class_probs:
                         class_probs[cls_name] = max(class_probs[cls_name], round(float(conf), 2))
                     else:
