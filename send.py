@@ -42,13 +42,28 @@ def send_message(data: InfoPacket):
         "quantityChange": count
     }
 
-    # 서버로 데이터 전송
-    response = requests.patch(config.url + config.patch_dir,
-                              json=send_data, headers={config.headers})
+    sending = False
 
-    # 전송 성공 여부 확인
-    if response.status_code == 200:
-        print("데이터 전송 성공")
+    if sending:
+
+        try:
+            # 서버로 데이터 전송
+            response = requests.patch(config.url + config.patch_dir,
+                                      json=send_data, headers={config.headers})
+
+            # 전송 성공 여부 확인
+            if response.status_code == 200:
+                print("데이터 전송 성공")
+                print(f'전송된 데이터: {object_name} -> {count}개')
+
+            else:
+                print(f"데이터 전송 실패: {response.status_code}")
+                return
+
+        except Exception as e:
+            print(f"데이터 전송 실패: {e}")
+            return
+
     else:
-        print(f"데이터 전송 실패: {response.status_code}")
-        return
+        print("데이터 전송 생략")
+        print(f'전송된 데이터: {object_name} -> {count}개')

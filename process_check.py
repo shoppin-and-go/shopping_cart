@@ -111,8 +111,8 @@ def check_process(input_queue, output_queue):
             for i in range(config.start_frame, config.start_frame + config.check_num):
                 frame = images[i]
                 result = remove_back_white(frame, back, config.threshold)
-                p1.append(result)
-
+                # p1.append(result)
+                p1.append(frame)
             save_all_images(p1, config.save_diff_dir, f"p{process}_1")
 
             p2 = []
@@ -121,7 +121,8 @@ def check_process(input_queue, output_queue):
             for i in range(L-config.check_num-5, L-5):
                 frame = images[i]
                 result = remove_back_white(frame, back2, config.threshold)
-                p2.append(result)
+                # p2.append(result)
+                p2.append(frame)
 
             save_all_images(p2, config.save_diff_dir, f"p{process}_2")
 

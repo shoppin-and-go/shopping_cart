@@ -1,65 +1,52 @@
 import torch
-from torchvision import transforms
-import timm
-from PIL import Image
 import os
-import torch.nn.functional as F
-from config import swin_config
+from config import yolo_config
 import numpy as np
 from data.data_class import ImageInfoPacket, InfoPacket
 from send import send_message
+from ultralytics import YOLO
+import cv2
 
 
-def create_model(config):
-    model = timm.create_model(config.model_name, pretrained=config.pretrained, num_classes=config.num_classes)
-    return model
-
-
-class Classifier:
+class YOLO_Classifier:
     def __init__(self, config):
         self.config = config
         self.device = config.device
-
-        self.model = create_model(config)
-        self.model = self.model.to(self.device)
-        print(
-            f"모델: {config.model_name}, 총 파라미터 수: {sum(p.numel() for p in self.model.parameters())}, 디바이스: {self.device}")
+        self.save_dir = config.save_dir
+        self.count = 0
 
         best_model_path_file = os.path.join(config.model_dir, "best_model.txt")
         with open(best_model_path_file, "r") as f:
             best_model = f.read().strip()
             print(f"최고 모델 로드 중: {best_model}")
 
-        self.model.load_state_dict(torch.load(best_model, map_location=self.device))
-        self.model.eval()
+        self.model = YOLO(best_model)
 
-        self.data_transforms = transforms.Compose([
-            transforms.Resize(config.image_size),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=config.normalize_mean, std=config.normalize_std)
-        ])
+        print(f"모델: {config.model_name}, 디바이스: {self.device}")
 
     def classify_image(self, image):
-        if isinstance(image, np.ndarray):
-            image = Image.fromarray(image)
-        elif not isinstance(image, Image.Image):
-            raise ValueError("입력은 PIL 이미지 또는 NumPy 배열이어야 합니다.")
+        if not isinstance(image, np.ndarray):
+            raise ValueError("입력은 NumPy 배열이어야 합니다.")
 
-        input_tensor = self.data_transforms(image)
-        input_tensor = input_tensor.unsqueeze(0).to(self.device)
 
         with torch.no_grad():
-            outputs = self.model(input_tensor)
-            probabilities = F.softmax(outputs, dim=1)
-            probs = probabilities.cpu().numpy()[0]
+            results = self.model.predict(image, verbose=False)
+
+            for idx, result in enumerate(results):
+                save_path = os.path.join(self.save_dir, f"{self.count}_{idx}.jpg")
+                result_img = result.plot()
+                cv2.imwrite(save_path, result_img)
+
+            self.count += 1
 
             class_probs = {}
-            for i in range(self.config.num_classes):
-                if i in self.config.idx_to_class:
-                    class_probs[self.config.idx_to_class[i]] = round(float(probs[i]), 2)
-                else:
-                    print(f"키 {i}가 idx_to_class에 존재하지 않습니다.")
-                    class_probs[f"Unknown_{i}"] = round(float(probs[i]), 2)
+            for result in results:
+                for cls_id, conf in zip(result.boxes.cls, result.boxes.conf):
+                    cls_name = self.config.idx_to_class[int(cls_id)]
+                    if cls_name in class_probs:
+                        class_probs[cls_name] = max(class_probs[cls_name], round(float(conf), 2))
+                    else:
+                        class_probs[cls_name] = round(float(conf), 2)
 
         return class_probs
 
@@ -83,10 +70,10 @@ def calculate_max_prob(prob_list):
 def classification_process(input_queue, output_queue):
     print("Classification process started")
 
-    config = swin_config()
-    config.load_from_json("./data/config/swin_config.json")
+    config = yolo_config()
+    config.load_from_json("./data/config/yolo_config.json")
     print(config)
-    classifier = Classifier(config)
+    classifier = YOLO_Classifier(config)
 
     print("Ready to classify images")
     output_queue.put("ready")
@@ -102,24 +89,30 @@ def classification_process(input_queue, output_queue):
                 result = classifier.classify_image(image)
                 result_list.append(result)
 
-        p1 = []
-        p2 = []
+            p1 = []
+            p2 = []
 
-        for i, result in enumerate(result_list):
-            if i < len(result_list) // 2:
-                p1.append(result)
+            for i, result in enumerate(result_list):
+                if i < len(result_list) // 2:
+                    p1.append(result)
+                else:
+                    p2.append(result)
+
+            max_class1, max_prob1 = calculate_max_prob(p1)
+            max_class2, max_prob2 = calculate_max_prob(p2)
+
+            if max_prob1 > 0.5:
+                IP1 = InfoPacket(message="classification", count=1, object=max_class1)
+                send_message(IP1)
             else:
-                p2.append(result)
+                print("분류 결과가 0.5 이상이 아님")
+                print(max_prob1, max_class1)
 
-        max_class1, max_prob1 = calculate_max_prob(p1)
-        max_class2, max_prob2 = calculate_max_prob(p2)
-
-        if max_prob1 > 0.8:
-            IP1 = InfoPacket(message="classification", count=1, object=max_class1)
-            send_message(IP1)
-
-        if max_prob2 > 0.8:
-            IP2 = InfoPacket(message="classification", count=-1, object=max_class2)
-            send_message(IP2)
+            if max_prob2 > 0.5:
+                IP2 = InfoPacket(message="classification", count=-1, object=max_class2)
+                send_message(IP2)
+            else:
+                print("분류 결과가 0.5 이상이 아님")
+                print(max_prob2, max_class2)
 
     print("classification.py 종료")

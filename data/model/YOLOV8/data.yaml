@@ -1,0 +1,21 @@
+names:
+- Buldak
+- Chapagetti
+- CocaCola
+- CornChips
+- Gatorade
+- Pepsi
+- PotatoChips
+- Powerade
+- Saewookkang
+- ShinRamyun
+nc: 10
+roboflow:
+  license: CC BY 4.0
+  project: product-detection-z4ct5
+  url: https://universe.roboflow.com/space1-ljydy/product-detection-z4ct5/dataset/3
+  version: 3
+  workspace: space1-ljydy
+test: ../test/images
+train: ../train/images
+val: ../valid/images

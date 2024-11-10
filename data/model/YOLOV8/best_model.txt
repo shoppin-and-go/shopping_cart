@@ -1,0 +1,1 @@
+data\model\YOLOV8\best.pt

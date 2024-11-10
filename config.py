@@ -83,6 +83,61 @@ class swin_config:
 
 
 @dataclass
+class yolo_config:
+    model_name: str = "YOLOV8"
+    model_dir: str = "./data/model"
+    save_dir: str = "./output/results"
+    batch_size: int = 32
+    learning_rate: float = 1e-4
+    epochs: int = 200
+    pretrained: bool = False
+    class_file: str = "./data/product.txt"
+    image_size: (int, int) = (256, 256)
+    normalize_mean: (float, float, float) = (0.485, 0.456, 0.406)
+    normalize_std: (float, float, float) = (0.229, 0.224, 0.225)
+    num_workers: int = 0
+    weight_decay: float = 1e-4
+    early_stopping_patience: int = 10
+    device: str = "cuda" if torch.cuda.is_available() else "cpu"
+    classes = None
+    num_classes: int = None
+    class_to_idx = None
+    idx_to_class = None
+
+    def __post_init__(self):
+        self.device = torch.device(self.device)
+        self.model_dir = os.path.join(self.model_dir, self.model_name)
+
+        if not os.path.exists(self.model_dir):
+            os.makedirs(self.model_dir)
+
+        with open(self.class_file, "r", encoding='utf-8') as f:
+            self.classes = f.read().splitlines()
+
+        self.num_classes = len(self.classes)
+        self.class_to_idx = {cls_name: idx for idx, cls_name in enumerate(self.classes)}
+        self.idx_to_class = {idx: cls_name for idx, cls_name in enumerate(self.classes)}
+
+    def save_to_json(self, path):
+        data = self.__dict__.copy()
+        data['device'] = str(data['device'])
+        with open(path, 'w') as f:
+            json.dump(data, f)
+
+    def load_from_json(self, path):
+        with open(path, 'r') as f:
+            data = json.load(f)
+            data['device'] = torch.device(data['device'])
+            self.__dict__.update(data)
+
+        with open(self.class_file, "r", encoding='utf-8') as f:
+            self.classes = f.read().splitlines()
+
+        self.num_classes = len(self.classes)
+        self.class_to_idx = {cls_name: idx for idx, cls_name in enumerate(self.classes)}
+        self.idx_to_class = {idx: cls_name for idx, cls_name in enumerate(self.classes)}
+
+@dataclass
 class checkP_config:
     save_dir: str = "./output/send"
     save_back_dir: str = "./output/back"
@@ -125,6 +180,13 @@ class send_config:
             self.__dict__.update(data)
 
 
+def update_yolo_config(path="./data/config/yolo_config.json"):
+    config = yolo_config()
+    config.save_to_json(path)
+    config.load_from_json(path)
+    return config
+
+
 def update_detect_config(path="./data/config/detect_config.json"):
     config = detect_config()
     config.save_to_json(path)
@@ -152,16 +214,21 @@ def update_send_config(path="./data/config/send_config.json"):
     config.load_from_json(path)
     return config
 
+def update_yolo_config(path="./data/config/yolo_config.json"):
+    config = yolo_config()
+    config.save_to_json(path)
+    config.load_from_json(path)
+    return config
+
+
+def update_all_config():
+    update_yolo_config()
+    update_detect_config()
+    update_swin_config()
+    update_checkP_config()
+    update_send_config()
+
 
 if __name__ == '__main__':
-    c = update_detect_config()
-    print(c)
-
-    c2 = update_swin_config()
-    print(c2)
-
-    c3 = update_checkP_config()
-    print(c3)
-
-    c4 = update_send_config()
-    print(c4)
+    update_all_config()
+    print("update all config")
