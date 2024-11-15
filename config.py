@@ -2,7 +2,14 @@ import json
 import torch
 import os
 from dataclasses import dataclass
+import sys
 
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 @dataclass
 class detect_config:
@@ -22,7 +29,7 @@ class detect_config:
             json.dump(self.__dict__, f)
 
     def load_from_json(self, path):
-        with open(path, 'r') as f:
+        with open(resource_path(path), 'r') as f:
             data = json.load(f)
             self.__dict__.update(data)
 
@@ -69,12 +76,12 @@ class swin_config:
             json.dump(data, f)
 
     def load_from_json(self, path):
-        with open(path, 'r') as f:
+        with open(resource_path(path), 'r') as f:
             data = json.load(f)
             data['device'] = torch.device(data['device'])
             self.__dict__.update(data)
 
-        with open(self.class_file, "r", encoding='utf-8') as f:
+        with open(resource_path(self.class_file), "r", encoding='utf-8') as f:
             self.classes = f.read().splitlines()
 
         self.num_classes = len(self.classes)
@@ -111,7 +118,7 @@ class yolo_config:
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)
 
-        with open(self.class_file, "r", encoding='utf-8') as f:
+        with open(resource_path(self.class_file), "r", encoding='utf-8') as f:
             self.classes = f.read().splitlines()
 
         self.num_classes = len(self.classes)
@@ -121,16 +128,16 @@ class yolo_config:
     def save_to_json(self, path):
         data = self.__dict__.copy()
         data['device'] = str(data['device'])
-        with open(path, 'w') as f:
+        with open(resource_path(path), 'w') as f:
             json.dump(data, f)
 
     def load_from_json(self, path):
-        with open(path, 'r') as f:
+        with open(resource_path(path), 'r') as f:
             data = json.load(f)
             data['device'] = torch.device(data['device'])
             self.__dict__.update(data)
 
-        with open(self.class_file, "r", encoding='utf-8') as f:
+        with open(resource_path(self.class_file), "r", encoding='utf-8') as f:
             self.classes = f.read().splitlines()
 
         self.num_classes = len(self.classes)
@@ -143,17 +150,17 @@ class checkP_config:
     save_back_dir: str = "./output/back"
     save_diff_dir: str = "./output/diff"
     min_frame: int = 10
-    check_num: int = 3
+    check_num: int = 5
     back: int = 3
-    threshold = 30
+    threshold = 20
     start_frame = 5
 
     def save_to_json(self, path):
-        with open(path, 'w') as f:
+        with open(resource_path(path), 'w') as f:
             json.dump(self.__dict__, f)
 
     def load_from_json(self, path):
-        with open(path, 'r') as f:
+        with open(resource_path(path), 'r') as f:
             data = json.load(f)
             self.__dict__.update(data)
 
@@ -171,11 +178,11 @@ class send_config:
         self.patch_dir = "/carts/" + str(self.cartCode) + "/inventories"
 
     def save_to_json(self, path):
-        with open(path, 'w') as f:
+        with open(resource_path(path), 'w') as f:
             json.dump(self.__dict__, f)
 
     def load_from_json(self, path):
-        with open(path, 'r') as f:
+        with open(resource_path(path), 'r') as f:
             data = json.load(f)
             self.__dict__.update(data)
 
@@ -214,12 +221,6 @@ def update_send_config(path="./data/config/send_config.json"):
     config.load_from_json(path)
     return config
 
-def update_yolo_config(path="./data/config/yolo_config.json"):
-    config = yolo_config()
-    config.save_to_json(path)
-    config.load_from_json(path)
-    return config
-
 
 def update_all_config():
     update_yolo_config()
@@ -227,8 +228,4 @@ def update_all_config():
     update_swin_config()
     update_checkP_config()
     update_send_config()
-
-
-if __name__ == '__main__':
-    update_all_config()
-    print("update all config")
+    print("All config updated")

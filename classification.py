@@ -6,6 +6,7 @@ from data.data_class import ImageInfoPacket, InfoPacket
 from send import send_message
 from ultralytics import YOLO
 import cv2
+import sys
 
 
 class YOLO_Classifier:
@@ -15,12 +16,13 @@ class YOLO_Classifier:
         self.save_dir = config.save_dir
         self.count = 0
 
-        best_model_path_file = os.path.join(config.model_dir, "best_model.txt")
+        best_model_path_file = resource_path(os.path.join(config.model_dir, "best_model.txt"))
         with open(best_model_path_file, "r") as f:
             best_model = f.read().strip()
             print(f"최고 모델 로드 중: {best_model}")
 
-        self.model = YOLO(best_model)
+        best_model_path = resource_path(best_model)
+        self.model = YOLO(best_model_path)
 
         print(f"모델: {config.model_name}, 디바이스: {self.device}")
 
@@ -65,12 +67,19 @@ def calculate_max_prob(prob_list):
 
     return max_class, max_prob
 
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 
 def classification_process(input_queue, output_queue):
     print("Classification process started")
 
     config = yolo_config()
-    config.load_from_json("./data/config/yolo_config.json")
+    config.load_from_json(resource_path("./data/config/yolo_config.json"))
     print(config)
     classifier = YOLO_Classifier(config)
 

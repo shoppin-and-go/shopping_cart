@@ -1,11 +1,20 @@
-from fastapi import FastAPI, Request
-import os
 import requests
 from config import send_config
 from data.data_class import InfoPacket
+import sys
+import os
+
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 
 def Mapping_code(name):
-    codebook={
+    codebook = {
         "ShinRamyun": "ramen-1",
         "Chapagetti": "ramen-2",
         "Buldak": "ramen-3",
@@ -23,7 +32,8 @@ def Mapping_code(name):
 def send_message(data: InfoPacket):
     # 설정 파일 불러오기
     config = send_config()
-    config.load_from_json("./data/config/send_config.json")
+    config.load_from_json(resource_path("./data/config/send_config.json"))
+
 
     # 분류 프로세스에서 받은 데이터
     message = data.message
@@ -42,14 +52,14 @@ def send_message(data: InfoPacket):
         "quantityChange": count
     }
 
-    sending = False
+    sending = True
 
     if sending:
 
         try:
             # 서버로 데이터 전송
             response = requests.patch(config.url + config.patch_dir,
-                                      json=send_data, headers={config.headers})
+                                      json=send_data, headers=config.headers)
 
             # 전송 성공 여부 확인
             if response.status_code == 200:
@@ -61,7 +71,7 @@ def send_message(data: InfoPacket):
                 return
 
         except Exception as e:
-            print(f"데이터 전송 실패: {e}")
+            print(f"데이터 전송 실패2: {e}")
             return
 
     else:

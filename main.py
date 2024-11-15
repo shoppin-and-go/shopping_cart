@@ -1,15 +1,12 @@
 from classification import classification_process
 from detect import read_video
-from send import send_message
 from process_check import check_process
 import multiprocessing
-from PIL import Image
-import os
-import time
 from data.data_class import ImageInfoPacket
 import sys
 import threading
 import queue
+
 
 
 def keyboard_listener(stop_event, input_queue_list, stopSig):
@@ -23,6 +20,9 @@ def keyboard_listener(stop_event, input_queue_list, stopSig):
 
 
 if __name__ == "__main__":
+
+    multiprocessing.freeze_support()
+
     c_input_queue = multiprocessing.Queue()
     c_output_queue = multiprocessing.Queue()
     d_input_queue = multiprocessing.Queue()

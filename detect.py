@@ -7,6 +7,7 @@ import json
 from config import detect_config
 from data.data_class import ImageInfoPacket
 import queue
+import sys
 
 
 @dataclass
@@ -25,6 +26,7 @@ def get_width_height_area(x, y, w, h):
 
 # 이미지 저장
 def write_image(img: Image):
+    pass
     if not os.path.exists(img.save_path):
         os.makedirs(img.save_path)
     img_name = os.path.join(img.save_path, img.name)
@@ -53,16 +55,24 @@ def cut_roi(frame, roi):
     return output
 
 
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+
 def read_video(input_queue, output_queue):
     print("비디오 읽는 중...")
 
     # 설정 파일 읽기
     config = detect_config()
-    config.load_from_json("./data/config/detect_config.json")
+    config.load_from_json(resource_path("./data/config/detect_config.json"))
 
     # 비디오 파일 읽기
     video = config.video
-    capture = cv2.VideoCapture(video)
+    capture = cv2.VideoCapture(0)
 
     # FPS 확인
     fps = capture.get(cv2.CAP_PROP_FPS)

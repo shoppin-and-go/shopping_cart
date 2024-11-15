@@ -1,1 +1,1 @@
-{"save_dir": "./output/send", "save_back_dir": "./output/back", "save_diff_dir": "./output/diff", "min_frame": 10, "check_num": 3, "back": 3}
+{"save_dir": "./output/send", "save_back_dir": "./output/back", "save_diff_dir": "./output/diff", "min_frame": 10, "check_num": 5, "back": 3}

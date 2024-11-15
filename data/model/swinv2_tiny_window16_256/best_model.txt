@@ -1,1 +1,0 @@
-data\model\swinv2_tiny_window16_256\swinv2_tiny_window16_256_37.pth

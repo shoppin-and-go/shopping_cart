@@ -4,10 +4,11 @@ import os
 from data.data_class import ImageInfoPacket
 import glob
 from config import checkP_config
+import sys
 
 
 def save_all_images(frames, save_path, name):
-
+    pass
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
@@ -19,6 +20,7 @@ def save_all_images(frames, save_path, name):
             continue
 
 def save_one_image(frame, save_path, name):
+    pass
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
@@ -66,12 +68,19 @@ def remove_back_white(image, back, threshold):
 
     return result
 
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 
 def check_process(input_queue, output_queue):
     print("Checking process...")
 
     config = checkP_config()
-    config.load_from_json("./data/config/checkP_config.json")
+    config.load_from_json(resource_path("./data/config/checkP_config.json"))
 
     output_queue.put("ready")
     save_path = config.save_dir
@@ -79,6 +88,7 @@ def check_process(input_queue, output_queue):
     erase_file(save_path)
     erase_file(config.save_back_dir)
     erase_file(config.save_diff_dir)
+    erase_file("./output/results")
 
     while True:
         data: ImageInfoPacket = input_queue.get()
